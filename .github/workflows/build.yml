@@ -1,0 +1,25 @@
+name: build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: microsoft/setup-msbuild@v1.0.2
+      - name: Compile
+        run: |
+          msbuild /p:Configuration=Release /p:Platform="x86"
+          mv Release/*.exe ./
+          mv Release/*.dll ./
+          7z a cri2wav.7z *.exe *.dll
+      - name: Upload
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: cri2wav.7z
+          tag: latest
+          overwrite: true
